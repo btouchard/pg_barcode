@@ -8,10 +8,7 @@
 PG_MODULE_MAGIC;
 
 PG_FUNCTION_INFO_V1(generate_qrcode_svg);
-PG_FUNCTION_INFO_V1(generate_qrcode_svg_with_options);
-
 PG_FUNCTION_INFO_V1(generate_datamatrix_svg);
-PG_FUNCTION_INFO_V1(generate_datamatrix_svg_with_options);
 
 Datum
 generate_qrcode_svg(PG_FUNCTION_ARGS)
