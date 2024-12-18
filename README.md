@@ -49,7 +49,7 @@ Once the extension is installed, you can generate QR codes using the `generate_q
 
 ```sql
 -- Generate a QR code
-SELECT generate_qr_code_svg('https://www.kolapsis.com');
+SELECT generate_qrcode_svg('https://www.kolapsis.com');
 ```
 
 Generate Datamatrix using the `generate_datamatrix_svg` function:
