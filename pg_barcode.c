@@ -15,23 +15,33 @@ generate_qrcode_svg(PG_FUNCTION_ARGS)
 {
     text *input_text = PG_GETARG_TEXT_P(0);
     char *input_string = text_to_cstring(input_text);
+
+    int input_version = 0;
+    if (PG_NARGS() > 1) {
+        input_version = PG_GETARG_INT32(1);
+        if (input_version < 0) {
+            input_version = 0;
+        }
+    }
+
     QRcode *qrcode;
     StringInfoData svg;
 
-    qrcode = QRcode_encodeString(input_string, 0, QR_ECLEVEL_L, QR_MODE_8, 1);
+    qrcode = QRcode_encodeString(input_string, input_version, QR_ECLEVEL_L, QR_MODE_8, 1);
     if (qrcode == NULL)
         ereport(ERROR, (errmsg("Failed to generate QR Code")));
 
     initStringInfo(&svg);
-    appendStringInfo(&svg, "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 %d %d'>\n",
-                     qrcode->width, qrcode->width);
+    appendStringInfo(&svg, "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 %d %d' width='%d' height='%d'>\n",
+                     qrcode->width, qrcode->width, qrcode->width, qrcode->width);
+    appendStringInfoString(&svg, "<rect x='0' y='0' width='100%' height='100%' fill='white' />\n");
 
     for (int y = 0; y < qrcode->width; y++) {
         for (int x = 0; x < qrcode->width; x++) {
             if (qrcode->data[y * qrcode->width + x] & 1) {
                 appendStringInfo(&svg,
-                                 "<rect x='%d' y='%d' width='1' height='1' fill='black' />\n",
-                                 x, y);
+                                "<rect x='%d' y='%d' width='1' height='1' fill='black' />\n",
+                                x, y);
             }
         }
     }
