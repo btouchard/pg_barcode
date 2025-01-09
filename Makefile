@@ -5,7 +5,7 @@ CFLAGS += -std=c99 -O
 
 MODULES 	= pg_barcode
 EXTENSION 	= pg_barcode
-DATA 		= pg_barcode--1.0.sql
+DATA 		= pg_barcode--1.1.sql
 PG_CONFIG 	= pg_config
 PGXS 		:= $(shell $(PG_CONFIG) --pgxs)
 
