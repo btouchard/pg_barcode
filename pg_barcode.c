@@ -32,6 +32,7 @@ generate_qrcode_svg(PG_FUNCTION_ARGS)
         ereport(ERROR, (errmsg("Failed to generate QR Code")));
 
     initStringInfo(&svg);
+    appendStringInfoString(&svg, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n");
     appendStringInfo(&svg, "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 %d %d' width='%d' height='%d'>\n",
                      qrcode->width, qrcode->width, qrcode->width, qrcode->width);
     appendStringInfoString(&svg, "<rect x='0' y='0' width='100%' height='100%' fill='white' />\n");
@@ -57,7 +58,22 @@ generate_datamatrix_svg(PG_FUNCTION_ARGS)
 {
     text *input_text = PG_GETARG_TEXT_P(0);
     char *input_string = text_to_cstring(input_text);
-    int module_size = 5;
+
+    int input_symbol = DmtxSymbolSquareAuto;
+    if (PG_NARGS() > 1) {
+        input_symbol = PG_GETARG_INT32(1);
+        if (input_symbol < DmtxSymbolSquareAuto) {
+            input_symbol = DmtxSymbolSquareAuto;
+        }
+    }
+
+    int module_size = 1;
+    if (PG_NARGS() > 2) {
+        module_size = PG_GETARG_INT32(2);
+        if (module_size < 1) {
+            module_size = 1;
+        }
+    }
     StringInfoData svg;
     char buffer[1024];
 
@@ -66,7 +82,7 @@ generate_datamatrix_svg(PG_FUNCTION_ARGS)
         ereport(ERROR, (errmsg("Failed to create Datamatrix encoder")));
 
     dmtxEncodeSetProp(encoder, DmtxPropPixelPacking, DmtxPack24bppRGB);
-    dmtxEncodeSetProp(encoder, DmtxPropSizeRequest, DmtxSymbolRectAuto);
+    dmtxEncodeSetProp(encoder, DmtxPropSizeRequest, input_symbol);
     dmtxEncodeSetProp(encoder, DmtxPropMarginSize, 1);
 
     if (!dmtxEncodeDataMatrix(encoder, strlen(input_string), (unsigned char *)input_string)) {
